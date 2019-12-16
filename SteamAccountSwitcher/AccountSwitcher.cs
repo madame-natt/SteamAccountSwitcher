@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
@@ -8,15 +9,20 @@ namespace SteamAccountSwitcher
 {
     public partial class AccountSwitcher : Form
     {
-        private AddAccount accountForm = new AddAccount();
+        private AddAccount addAccountForm = new AddAccount();
+        private EditAccount editAccountForm = new EditAccount();
+
         private Account selectedAccount;
+
+        private AccountXML accountXML = new AccountXML("accounts.xml");
 
         public AccountSwitcher()
         {
             InitializeComponent();
-            UnselectAccount();
+            LoadAccountsFromXML();
 
-            accountForm.Parent = this;
+            editAccountForm.Parent = this;
+            editAccountForm.Parent = this;
 
             accountsPanel.HorizontalScroll.Maximum = 0;
             accountsPanel.AutoScroll = false;
@@ -30,7 +36,8 @@ namespace SteamAccountSwitcher
             selectedAccount = account;
             selectedAccount.Selected = true;
             loginButton.Enabled = true;
-            loginButton.Text = String.Format("Login ({0})", selectedAccount.Username);
+            editAccountToolStripMenuItem.Enabled = true;
+            loginButton.Text = String.Format("Login ({0})", selectedAccount.CustomDisplayName);
         }
 
         public void UnselectAccount()
@@ -38,7 +45,40 @@ namespace SteamAccountSwitcher
             if (selectedAccount != null) selectedAccount.Selected = false;
             selectedAccount = null;
             loginButton.Enabled = false;
+            editAccountToolStripMenuItem.Enabled = false;
             loginButton.Text = "Login";
+        }
+
+        public void UpdateUI()
+        {
+            foreach (Account acc in accountsPanel.Controls)
+            {
+                acc.UpdateUI();
+            }
+        }
+
+        public void MoveAccountUp(Account account)
+        {
+            accountsPanel.Controls.SetChildIndex(account, accountsPanel.Controls.GetChildIndex(account) - 1);
+            EditAllAccounts();
+            UpdateUI();
+        }
+
+        public void MoveAccountDown(Account account)
+        {
+            accountsPanel.Controls.SetChildIndex(account, accountsPanel.Controls.GetChildIndex(account) + 1);
+            EditAllAccounts();
+            UpdateUI();
+        }
+
+        public bool IsAccountTop(Account account)
+        {
+            return (accountsPanel.Controls.GetChildIndex(account) == 0);
+        }
+
+        public bool IsAccountBottom(Account account)
+        {
+            return (accountsPanel.Controls.GetChildIndex(account) == (accountsPanel.Controls.Count - 1));
         }
 
         public void AddAccount(string userName, string description)
@@ -47,9 +87,11 @@ namespace SteamAccountSwitcher
             AddAccount(unixTimestamp, userName, description);
         }
 
-        private void AddAccount(Int64 uID, string userName, string description)
+        private void AddAccount(Int64 uID, string userName, string description, string customDisplayName = null, int pos = -1, bool loadingFromFile = false)
         {
-            Account newAccount = new Account(uID, userName, description);
+            if (String.IsNullOrWhiteSpace(customDisplayName)) customDisplayName = userName;
+            if (pos == -1) pos = accountsPanel.Controls.Count;
+            Account newAccount = new Account(uID, userName, description, customDisplayName, pos);
             newAccount.Parent = this;
             Size currSize = newAccount.Size;
             if (accountsPanel.VerticalScroll.Visible) // Rather unelegant.
@@ -58,13 +100,80 @@ namespace SteamAccountSwitcher
                 currSize.Width = accountsPanel.Width - 2;
             newAccount.Size = currSize;
 
+            if (!loadingFromFile) accountXML.AddAccount(newAccount);
             accountsPanel.Controls.Add(newAccount);
+            accountsPanel.Controls.SetChildIndex(newAccount, pos);
+            UpdateUI();
+        }
+
+        private void LoadAccountsFromXML()
+        {
+            List<Account> accounts = accountXML.LoadAllAccounts();
+            accounts.Sort((i1, i2) => i1.Position.CompareTo(i2.Position));
+
+            if (accounts != null)
+            {
+                foreach (Account account in accounts)
+                {
+                    AddAccount(account.UniqueID, account.Username, account.Description, account.CustomDisplayName, -1, true);
+                }
+            }
+        }
+
+        public void OpenAccountEditor(Account account)
+        {
+            if (!editAccountForm.Visible)
+            {
+                Point currLoc = this.Location;
+                currLoc.X = currLoc.X + (int)Math.Floor((double)this.Size.Width / 8.0);
+                currLoc.Y = currLoc.Y + (int)Math.Floor((double)this.Size.Height / 8.0);
+
+                editAccountForm.Location = currLoc;
+                editAccountForm.Parent = this;
+                editAccountForm.SetAccount(account);
+                editAccountForm.Show(this);
+            }
+            else if (editAccountForm.GetAccount() != null && editAccountForm.GetAccount() == account)
+            {
+                editAccountForm.BringToFront();
+            }
+            else
+            {
+                editAccountForm.SetAccount(account);
+                editAccountForm.BringToFront();
+            }
+        }
+
+        public void EditAccount(Account account)
+        {
+            accountXML.EditAccount(account);
+        }
+
+        public void EditAllAccounts()
+        {
+            foreach (Account account in accountsPanel.Controls)
+            {
+                account.Position = accountsPanel.Controls.GetChildIndex(account);
+                accountXML.EditAccount(account);
+            }
         }
 
         public void RemoveAccount(Account account)
         {
             if (selectedAccount == account) UnselectAccount();
+            accountXML.RemoveAccount(account);
             account.Dispose();
+            UpdateUI();
+        }
+
+        public void Login(Account account)
+        {
+            CloseSteam();
+            Thread.Sleep(500);
+
+            ExecuteCmdCommand(String.Format("reg add \"HKCU\\Software\\Valve\\Steam\" /v AutoLoginUser /t REG_SZ /d {0} /f", account.Username));
+            ExecuteCmdCommand("reg add \"HKCU\\Software\\Valve\\Steam\" /v RememberPassword /t REG_DWORD /d 1 /f");
+            ExecuteCmdCommand("start steam://open/main"); // Add option to launch directly with EXE
         }
 
         private void ExecuteCmdCommand(string command, bool asAdmin = false)
@@ -105,24 +214,29 @@ namespace SteamAccountSwitcher
 
         private void AddAccountToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!accountForm.Visible)
+            if (!editAccountForm.Visible)
             {
                 Point currLoc = this.Location;
                 currLoc.X = currLoc.X + (int)Math.Floor((double)this.Size.Width / 8.0);
                 currLoc.Y = currLoc.Y + (int)Math.Floor((double)this.Size.Height / 8.0);
 
-                accountForm.Location = currLoc;
-                accountForm.Parent = this;
-                accountForm.Show(this);
+                editAccountForm.Location = currLoc;
+                editAccountForm.Parent = this;
+                editAccountForm.Show(this);
             }
-            else accountForm.BringToFront();
+            else editAccountForm.BringToFront();
+        }
+
+        private void EditAccountToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenAccountEditor(selectedAccount);
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
             base.OnFormClosing(e);
 
-            accountForm.Dispose();
+            editAccountForm.Dispose();
             this.Dispose();
         }
 
@@ -141,12 +255,8 @@ namespace SteamAccountSwitcher
 
         private void loginButton_Click(object sender, EventArgs e)
         {
-            CloseSteam();
-            Thread.Sleep(500);
-
-            ExecuteCmdCommand(String.Format("reg add \"HKCU\\Software\\Valve\\Steam\" /v AutoLoginUser /t REG_SZ /d {0} /f", selectedAccount.Username));
-            ExecuteCmdCommand("reg add \"HKCU\\Software\\Valve\\Steam\" /v RememberPassword /t REG_DWORD /d 1 /f");
-            ExecuteCmdCommand("start steam://open/main"); // Add option to launch directly with EXE
+            if (selectedAccount != null)
+                Login(selectedAccount);
         }
     }
 }

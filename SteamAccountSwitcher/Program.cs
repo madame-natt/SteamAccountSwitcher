@@ -7,7 +7,7 @@ namespace SteamAccountSwitcher
     static class Program
     {
         private const bool IsPreReleaseBuild = true;
-        private const string PreReleaseTag = "DEV_191215-1";
+        private const string PreReleaseTag = "DEV_191216-1";
 
         [STAThread]
         static void Main()

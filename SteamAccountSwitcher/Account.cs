@@ -9,17 +9,29 @@ namespace SteamAccountSwitcher
         public new AccountSwitcher Parent { get; set; }
 
         bool selected = false;
+        int position = 0;
 
         public Account()
         {
             InitializeComponent();
         }
 
-        public Account(Int64 uID, string userName, string description) : this()
+        public Account(Int64 uID) : this()
         {
             this.UniqueID = uID;
+        }
+
+        public Account(Int64 uID, string userName, string description, int pos) : this(uID)
+        {
             this.Username = userName;
             this.Description = description;
+            if (String.IsNullOrWhiteSpace(CustomDisplayName)) CustomDisplayName = this.Username;
+            this.position = pos;
+        }
+
+        public Account(Int64 uID, string userName, string description, string customDisplayName, int pos) : this(uID, userName, description, pos)
+        {
+            this.CustomDisplayName = customDisplayName;
         }
 
         public Int64 UniqueID { get; }
@@ -28,9 +40,22 @@ namespace SteamAccountSwitcher
         { 
             get
             {
-                return userNameLabel.Text; 
+                return toolTip.GetToolTip(userNameLabel); 
             }
             
+            set
+            {
+                toolTip.SetToolTip(userNameLabel, value);
+            }
+        }
+
+        public string CustomDisplayName
+        {
+            get
+            {
+                return userNameLabel.Text;
+            }
+
             set
             {
                 userNameLabel.Text = value;
@@ -47,6 +72,7 @@ namespace SteamAccountSwitcher
             set
             {
                 descriptionLabel.Text = value;
+                toolTip.SetToolTip(descriptionLabel, value);
             }
         }
 
@@ -65,6 +91,25 @@ namespace SteamAccountSwitcher
             }
         }
 
+        public int Position
+        {
+            get
+            {
+                return position;
+            }
+
+            set
+            {
+                position = value;
+            }
+        }
+
+        public void UpdateUI()
+        {
+            upPosButton.Enabled = !Parent.IsAccountTop(this);
+            downPosButton.Enabled = !Parent.IsAccountBottom(this);
+        }
+
         private void SetColour(Color color)
         {
             userNameLabel.BackColor = color;
@@ -81,9 +126,29 @@ namespace SteamAccountSwitcher
             Parent.SelectAccount(this);
         }
 
+        private void accountInterface_DoubleClick(object sender, EventArgs e)
+        {
+            Parent.Login(this);
+        }
+
         private void deleteAccount_Click(object sender, EventArgs e)
         {
             Parent.RemoveAccount(this);
+        }
+
+        private void editButton_Click(object sender, EventArgs e)
+        {
+            Parent.OpenAccountEditor(this);
+        }
+
+        private void upPosButton_Click(object sender, EventArgs e)
+        {
+            Parent.MoveAccountUp(this);
+        }
+
+        private void downPosButton_Click(object sender, EventArgs e)
+        {
+            Parent.MoveAccountDown(this);
         }
     }
 }

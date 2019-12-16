@@ -3,17 +3,34 @@ using System.Windows.Forms;
 
 namespace SteamAccountSwitcher
 {
-    public partial class AddAccount : Form
+    public partial class EditAccount : Form
     {
         public new AccountSwitcher Parent { get; set; }
 
-        public AddAccount()
+        private Account _account;
+
+        public EditAccount()
         {
             InitializeComponent();
         }
 
+        public void SetAccount(Account account)
+        {
+            _account = account;
+
+            displayNameTextbox.Text = _account.CustomDisplayName;
+            usernameTextbox.Text = _account.Username;
+            descTextbox.Text = _account.Description;
+        }
+
+        public Account GetAccount()
+        {
+            return _account;
+        }
+
         private void ResetInput()
         {
+            displayNameTextbox.ResetText();
             usernameTextbox.ResetText();
             descTextbox.ResetText();
         }
@@ -25,9 +42,13 @@ namespace SteamAccountSwitcher
             Parent.BringToFront();
         }
 
-        private void AddAccountButton_Click(object sender, EventArgs e)
+        private void EditAccountButton_Click(object sender, EventArgs e)
         {
-            Parent.AddAccount(usernameTextbox.Text, descTextbox.Text);
+            _account.Username = usernameTextbox.Text;
+            _account.Description = descTextbox.Text;
+            _account.CustomDisplayName = displayNameTextbox.Text;
+
+            Parent.EditAccount(_account);
             CloseForm();
         }
 
@@ -50,7 +71,7 @@ namespace SteamAccountSwitcher
 
         private void usernameTextbox_TextChanged(object sender, EventArgs e)
         {
-            addAccountButton.Enabled = !String.IsNullOrWhiteSpace(usernameTextbox.Text);
+            editAccountButton.Enabled = !String.IsNullOrWhiteSpace(usernameTextbox.Text);
         }
     }
 }

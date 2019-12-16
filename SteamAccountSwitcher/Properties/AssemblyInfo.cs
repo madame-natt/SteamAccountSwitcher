@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("SteamAccountSwitcher")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Easily switch between Steam accounts. No password or Steam Guard code needed.")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("mullak99")]
 [assembly: AssemblyProduct("SteamAccountSwitcher")]
-[assembly: AssemblyCopyright("Copyright ©  2019")]
+[assembly: AssemblyCopyright("Copyright © 2019 | mullak99")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

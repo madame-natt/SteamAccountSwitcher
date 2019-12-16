@@ -28,30 +28,32 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.menuStrip1 = new System.Windows.Forms.MenuStrip();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AccountSwitcher));
+            this.menuStrip = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exportAccountsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addAccountToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.editAccountToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.loginButton = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.accountsPanel = new System.Windows.Forms.FlowLayoutPanel();
-            this.menuStrip1.SuspendLayout();
+            this.menuStrip.SuspendLayout();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
-            // menuStrip1
+            // menuStrip
             // 
-            this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.menuStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.editToolStripMenuItem});
-            this.menuStrip1.Location = new System.Drawing.Point(0, 0);
-            this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(359, 24);
-            this.menuStrip1.TabIndex = 0;
-            this.menuStrip1.Text = "menuStrip1";
+            this.menuStrip.Location = new System.Drawing.Point(0, 0);
+            this.menuStrip.Name = "menuStrip";
+            this.menuStrip.Size = new System.Drawing.Size(359, 24);
+            this.menuStrip.TabIndex = 0;
+            this.menuStrip.Text = "menuStrip1";
             // 
             // fileToolStripMenuItem
             // 
@@ -63,6 +65,7 @@
             // 
             // exportAccountsToolStripMenuItem
             // 
+            this.exportAccountsToolStripMenuItem.Enabled = false;
             this.exportAccountsToolStripMenuItem.Name = "exportAccountsToolStripMenuItem";
             this.exportAccountsToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.exportAccountsToolStripMenuItem.Text = "Export Accounts";
@@ -71,6 +74,7 @@
             // 
             this.editToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.addAccountToolStripMenuItem,
+            this.editAccountToolStripMenuItem,
             this.toolStripSeparator1,
             this.optionsToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
@@ -84,6 +88,14 @@
             this.addAccountToolStripMenuItem.Text = "Add Account";
             this.addAccountToolStripMenuItem.Click += new System.EventHandler(this.AddAccountToolStripMenuItem_Click);
             // 
+            // editAccountToolStripMenuItem
+            // 
+            this.editAccountToolStripMenuItem.Enabled = false;
+            this.editAccountToolStripMenuItem.Name = "editAccountToolStripMenuItem";
+            this.editAccountToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.editAccountToolStripMenuItem.Text = "Edit Account";
+            this.editAccountToolStripMenuItem.Click += new System.EventHandler(this.EditAccountToolStripMenuItem_Click);
+            // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
@@ -91,6 +103,7 @@
             // 
             // optionsToolStripMenuItem
             // 
+            this.optionsToolStripMenuItem.Enabled = false;
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
             this.optionsToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.optionsToolStripMenuItem.Text = "Options";
@@ -98,6 +111,7 @@
             // loginButton
             // 
             this.loginButton.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.loginButton.Enabled = false;
             this.loginButton.Location = new System.Drawing.Point(0, 0);
             this.loginButton.Name = "loginButton";
             this.loginButton.Size = new System.Drawing.Size(359, 24);
@@ -135,14 +149,16 @@
             this.ClientSize = new System.Drawing.Size(359, 201);
             this.Controls.Add(this.accountsPanel);
             this.Controls.Add(this.panel1);
-            this.Controls.Add(this.menuStrip1);
-            this.MainMenuStrip = this.menuStrip1;
+            this.Controls.Add(this.menuStrip);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MainMenuStrip = this.menuStrip;
+            this.MaximizeBox = false;
             this.MinimumSize = new System.Drawing.Size(320, 175);
             this.Name = "AccountSwitcher";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "Steam Account Switcher";
-            this.menuStrip1.ResumeLayout(false);
-            this.menuStrip1.PerformLayout();
+            this.menuStrip.ResumeLayout(false);
+            this.menuStrip.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -151,7 +167,7 @@
 
         #endregion
 
-        private System.Windows.Forms.MenuStrip menuStrip1;
+        private System.Windows.Forms.MenuStrip menuStrip;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exportAccountsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem editToolStripMenuItem;
@@ -161,6 +177,7 @@
         private System.Windows.Forms.Button loginButton;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.FlowLayoutPanel accountsPanel;
+        private System.Windows.Forms.ToolStripMenuItem editAccountToolStripMenuItem;
     }
 }
 
