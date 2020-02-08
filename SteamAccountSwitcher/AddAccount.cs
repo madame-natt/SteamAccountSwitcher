@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace SteamAccountSwitcher
@@ -51,6 +52,12 @@ namespace SteamAccountSwitcher
         private void usernameTextbox_TextChanged(object sender, EventArgs e)
         {
             addAccountButton.Enabled = !String.IsNullOrWhiteSpace(usernameTextbox.Text);
+        }
+
+        private void AddAccount_Load(object sender, EventArgs e)
+        {
+            if (Owner != null)
+                Location = new Point(Owner.Location.X + Owner.Width / 2 - Width / 2, Owner.Location.Y + Owner.Height / 2 - Height / 2);
         }
     }
 }

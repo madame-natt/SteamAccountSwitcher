@@ -143,12 +143,12 @@ namespace SteamAccountSwitcher
 
         private void upPosButton_Click(object sender, EventArgs e)
         {
-            Parent.MoveAccountUp(this);
+            Parent.MoveAccountBy(this, -1);
         }
 
         private void downPosButton_Click(object sender, EventArgs e)
         {
-            Parent.MoveAccountDown(this);
+            Parent.MoveAccountBy(this, 1);
         }
     }
 }

@@ -1,49 +1,47 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using SimpleSettingsManager;
+using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
+using System.Security.Principal;
 
 namespace SteamAccountSwitcher
 {
     public partial class AccountSwitcher : Form
     {
-        private AddAccount addAccountForm = new AddAccount();
-        private EditAccount editAccountForm = new EditAccount();
+        private AddAccount _addAccountForm = new AddAccount();
+        private EditAccount _editAccountForm = new EditAccount();
+        public Settings options = new Settings();
 
-        private Account selectedAccount;
+        private Account _selectedAccount;
 
-        private AccountXML accountXML = new AccountXML("accounts.xml");
+        private AccountXML _accountXML = new AccountXML("accounts.xml");
+        public SSM ssm = new SSM(new SSM_File("settings.xml", SSM_File.Mode.XML));
 
         public AccountSwitcher()
         {
             InitializeComponent();
-            LoadAccountsFromXML();
 
-            editAccountForm.Parent = this;
-            editAccountForm.Parent = this;
-
-            accountsPanel.HorizontalScroll.Maximum = 0;
-            accountsPanel.AutoScroll = false;
-            accountsPanel.VerticalScroll.Visible = false;
-            accountsPanel.AutoScroll = true;
+            Init();
         }
-
         public void SelectAccount(Account account)
         {
-            if (selectedAccount != null) selectedAccount.Selected = false;
-            selectedAccount = account;
-            selectedAccount.Selected = true;
+            if (_selectedAccount != null) _selectedAccount.Selected = false;
+            _selectedAccount = account;
+            _selectedAccount.Selected = true;
             loginButton.Enabled = true;
             editAccountToolStripMenuItem.Enabled = true;
-            loginButton.Text = String.Format("Login ({0})", selectedAccount.CustomDisplayName);
+            loginButton.Text = String.Format("Login ({0})", _selectedAccount.CustomDisplayName);
         }
 
         public void UnselectAccount()
         {
-            if (selectedAccount != null) selectedAccount.Selected = false;
-            selectedAccount = null;
+            if (_selectedAccount != null) _selectedAccount.Selected = false;
+            _selectedAccount = null;
             loginButton.Enabled = false;
             editAccountToolStripMenuItem.Enabled = false;
             loginButton.Text = "Login";
@@ -51,22 +49,24 @@ namespace SteamAccountSwitcher
 
         public void UpdateUI()
         {
+            contextMenuStrip.Items.Clear();
+
             foreach (Account acc in accountsPanel.Controls)
             {
                 acc.UpdateUI();
+
+                contextMenuStrip.Items.Add(acc.CustomDisplayName, null, delegate { SelectAccount(acc); Login(acc); }).ToolTipText = acc.Username;
             }
+
+            aboutSASToolStripMenuItem.Enabled = options.DeveloperMode;
+
+            contextMenuStrip.Items.Add("-");
+            contextMenuStrip.Items.Add("Exit", null, delegate { CloseForm(true); }).ToolTipText = "Close the program";
         }
 
-        public void MoveAccountUp(Account account)
+        public void MoveAccountBy(Account account, int index)
         {
-            accountsPanel.Controls.SetChildIndex(account, accountsPanel.Controls.GetChildIndex(account) - 1);
-            EditAllAccounts();
-            UpdateUI();
-        }
-
-        public void MoveAccountDown(Account account)
-        {
-            accountsPanel.Controls.SetChildIndex(account, accountsPanel.Controls.GetChildIndex(account) + 1);
+            accountsPanel.Controls.SetChildIndex(account, accountsPanel.Controls.GetChildIndex(account) + index);
             EditAllAccounts();
             UpdateUI();
         }
@@ -100,15 +100,18 @@ namespace SteamAccountSwitcher
                 currSize.Width = accountsPanel.Width - 2;
             newAccount.Size = currSize;
 
-            if (!loadingFromFile) accountXML.AddAccount(newAccount);
+            if (!loadingFromFile) _accountXML.AddAccount(newAccount);
+
             accountsPanel.Controls.Add(newAccount);
             accountsPanel.Controls.SetChildIndex(newAccount, pos);
+
             UpdateUI();
         }
 
         private void LoadAccountsFromXML()
         {
-            List<Account> accounts = accountXML.LoadAllAccounts();
+            string currAccount = GetCurrentAutoLoginUsername();
+            List<Account> accounts = _accountXML.LoadAllAccounts();
             accounts.Sort((i1, i2) => i1.Position.CompareTo(i2.Position));
 
             if (accounts != null)
@@ -118,35 +121,62 @@ namespace SteamAccountSwitcher
                     AddAccount(account.UniqueID, account.Username, account.Description, account.CustomDisplayName, -1, true);
                 }
             }
+
+            if (!String.IsNullOrWhiteSpace(currAccount))
+            {
+                Account acc = accountsPanel.Controls.OfType<Account>().First(s => s.Username == currAccount);
+                if (acc != null) SelectAccount(acc);
+            }
+        }
+
+        private void Init()
+        {
+            _addAccountForm.Parent = this;
+            _addAccountForm.Owner = this;
+            _editAccountForm.Parent = this;
+            _editAccountForm.Owner = this;
+            options.Parent = this;
+            options.Owner = this;
+
+            ssm.Open();
+            options.InitSettings();
+            LoadAccountsFromXML();
+
+            accountsPanel.HorizontalScroll.Maximum = 0;
+            accountsPanel.AutoScroll = false;
+            accountsPanel.VerticalScroll.Visible = false;
+            accountsPanel.AutoScroll = true;
         }
 
         public void OpenAccountEditor(Account account)
         {
-            if (!editAccountForm.Visible)
+            if (!_editAccountForm.Visible)
             {
-                Point currLoc = this.Location;
-                currLoc.X = currLoc.X + (int)Math.Floor((double)this.Size.Width / 8.0);
-                currLoc.Y = currLoc.Y + (int)Math.Floor((double)this.Size.Height / 8.0);
-
-                editAccountForm.Location = currLoc;
-                editAccountForm.Parent = this;
-                editAccountForm.SetAccount(account);
-                editAccountForm.Show(this);
+                _editAccountForm.SetAccount(account);
+                _editAccountForm.Show(this);
             }
-            else if (editAccountForm.GetAccount() != null && editAccountForm.GetAccount() == account)
+            else if (_editAccountForm.GetAccount() != null && _editAccountForm.GetAccount() == account)
             {
-                editAccountForm.BringToFront();
+                _editAccountForm.BringToFront();
             }
             else
             {
-                editAccountForm.SetAccount(account);
-                editAccountForm.BringToFront();
+                _editAccountForm.SetAccount(account);
+                _editAccountForm.BringToFront();
             }
+        }
+
+        public void OpenSettings()
+        {
+            if (!options.Visible)
+                options.Show(this);
+            else
+                options.BringToFront();
         }
 
         public void EditAccount(Account account)
         {
-            accountXML.EditAccount(account);
+            _accountXML.EditAccount(account);
         }
 
         public void EditAllAccounts()
@@ -154,14 +184,14 @@ namespace SteamAccountSwitcher
             foreach (Account account in accountsPanel.Controls)
             {
                 account.Position = accountsPanel.Controls.GetChildIndex(account);
-                accountXML.EditAccount(account);
+                _accountXML.EditAccount(account);
             }
         }
 
         public void RemoveAccount(Account account)
         {
-            if (selectedAccount == account) UnselectAccount();
-            accountXML.RemoveAccount(account);
+            if (_selectedAccount == account) UnselectAccount();
+            _accountXML.RemoveAccount(account);
             account.Dispose();
             UpdateUI();
         }
@@ -173,7 +203,34 @@ namespace SteamAccountSwitcher
 
             ExecuteCmdCommand(String.Format("reg add \"HKCU\\Software\\Valve\\Steam\" /v AutoLoginUser /t REG_SZ /d {0} /f", account.Username));
             ExecuteCmdCommand("reg add \"HKCU\\Software\\Valve\\Steam\" /v RememberPassword /t REG_DWORD /d 1 /f");
-            ExecuteCmdCommand("start steam://open/main"); // Add option to launch directly with EXE
+
+            if (options.UseSteamPath)
+                ExecuteCmdCommand(options.SteamPath);
+            else
+                ExecuteCmdCommand("start steam://open/main"); // Add option to launch directly with EXE
+        }
+
+        private string GetCurrentAutoLoginUsername()
+        {
+            try
+            {
+                using (RegistryKey key = Registry.CurrentUser.OpenSubKey("Software\\Valve\\Steam"))
+                {
+                    if (key != null)
+                    {
+                        Object o = key.GetValue("AutoLoginUser");
+                        if (o != null)
+                        {
+                            return o.ToString();
+                        }
+                    }
+                }
+                return null;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         private void ExecuteCmdCommand(string command, bool asAdmin = false)
@@ -190,16 +247,21 @@ namespace SteamAccountSwitcher
 
         private void CloseSteam(bool asAdmin = false, bool alreadyRan = false)
         {
-            if (IsProcessOpen("csgo") || IsProcessOpen("Steam"))
+            if (IsProcessOpen("Steam"))
             {
-                ExecuteCmdCommand("taskkill /F /IM csgo.exe");
-                ExecuteCmdCommand("taskkill /F /IM GameOverlayUI.exe");
-                ExecuteCmdCommand("taskkill /F /IM Steam.exe");
+                ExecuteCmdCommand("taskkill /F /IM GameOverlayUI.exe", asAdmin);
+                ExecuteCmdCommand("taskkill /F /IM Steam.exe", asAdmin);
                 ExecuteCmdCommand("timeout /t 3");
 
-                if ((IsProcessOpen("csgo") || IsProcessOpen("Steam")) && !alreadyRan)
+                if ((IsProcessOpen("Steam")) && !alreadyRan)
                     CloseSteam(true, true);
-                else { /* Show Error if failed */ }
+                else if (!IsRunAsAdmin())
+                {
+                    if (MessageBox.Show("Steam could not be closed!\nAttempt to close as admin?", "Steam cannot be closed", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                        RunAsAdmin();
+                }
+                else
+                    MessageBox.Show("Steam could not be closed!\nPlease relaunch Steam manually to switch accounts.", "Steam cannot be closed", MessageBoxButtons.OK);
             }
         }
 
@@ -212,32 +274,89 @@ namespace SteamAccountSwitcher
             return false;
         }
 
+        internal bool IsRunAsAdmin()
+        {
+            WindowsIdentity id = WindowsIdentity.GetCurrent();
+            WindowsPrincipal principal = new WindowsPrincipal(id);
+            return principal.IsInRole(WindowsBuiltInRole.Administrator);
+        }
+
+        private void RunAsAdmin()
+        {
+            if (!IsRunAsAdmin())
+            {
+                ProcessStartInfo proc = new ProcessStartInfo();
+                proc.UseShellExecute = true;
+                proc.WorkingDirectory = Environment.CurrentDirectory;
+                proc.FileName = Application.ExecutablePath;
+                proc.Verb = "runas";
+
+                try
+                {
+                    Process.Start(proc);
+                }
+                catch
+                {
+                    return;
+                }
+
+                CloseForm(true);
+            }
+        }
+
         private void AddAccountToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!editAccountForm.Visible)
-            {
-                Point currLoc = this.Location;
-                currLoc.X = currLoc.X + (int)Math.Floor((double)this.Size.Width / 8.0);
-                currLoc.Y = currLoc.Y + (int)Math.Floor((double)this.Size.Height / 8.0);
-
-                editAccountForm.Location = currLoc;
-                editAccountForm.Parent = this;
-                editAccountForm.Show(this);
-            }
-            else editAccountForm.BringToFront();
+            if (!_editAccountForm.Visible)
+                _editAccountForm.Show(this);
+            else
+                _editAccountForm.BringToFront();
         }
 
         private void EditAccountToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            OpenAccountEditor(selectedAccount);
+            OpenAccountEditor(_selectedAccount);
         }
 
         protected override void OnFormClosing(FormClosingEventArgs e)
         {
-            base.OnFormClosing(e);
+            if (e.CloseReason == CloseReason.UserClosing && options.CloseToTray)
+            {
+                e.Cancel = true;
+                MinimiseToTray();
+            }
+            else
+            {
+                base.OnFormClosing(e);
 
-            editAccountForm.Dispose();
-            this.Dispose();
+                _editAccountForm.Dispose();
+                this.Dispose();
+            }
+        }
+
+        private void CloseForm(bool forceClose = false)
+        {
+            if (forceClose) OnFormClosing(new FormClosingEventArgs(CloseReason.ApplicationExitCall, false));
+            else OnFormClosing(new FormClosingEventArgs(CloseReason.UserClosing, false));
+        }
+
+        public void MinimiseToTray(bool showBalloon = true)
+        {
+            if (showBalloon)
+            {
+                notifyIcon.BalloonTipText = " ";
+                notifyIcon.BalloonTipTitle = "Steam Account Switcher is running in the background.";
+                notifyIcon.ShowBalloonTip(500);
+            }
+
+            _editAccountForm.Hide();
+            this.Hide();
+        }
+
+        private void MaxmisedFromTray()
+        {
+            this.Show();
+            this.BringToFront();
+            this.WindowState = FormWindowState.Normal;
         }
 
         private void accountsPanel_Resize(object sender, EventArgs e)
@@ -255,8 +374,63 @@ namespace SteamAccountSwitcher
 
         private void loginButton_Click(object sender, EventArgs e)
         {
-            if (selectedAccount != null)
-                Login(selectedAccount);
+            if (_selectedAccount != null)
+                Login(_selectedAccount);
+        }
+
+        private void optionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            OpenSettings();
+        }
+
+        private void aboutSASToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            /* TODO: Make About Form */
+        }
+
+        private void notifyIcon_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                if (this.Visible)
+                    MinimiseToTray(false);
+                else
+                    MaxmisedFromTray();
+            }
+        }
+
+        private void notifyIcon_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            if(e.Button == System.Windows.Forms.MouseButtons.Left)
+            {
+                if (this.Visible)
+                {
+                    MinimiseToTray();
+                }
+                else
+                {
+                    this.WindowState = FormWindowState.Normal;
+                    MaxmisedFromTray();
+                    this.BringToFront();
+                }
+            }
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CloseForm(true);
+        }
+
+        private void AccountSwitcher_Resize(object sender, EventArgs e)
+        {
+            if (this.WindowState == FormWindowState.Minimized && options.MinimiseToTray)
+                CloseForm();
+        }
+
+        private void AccountSwitcher_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+                CloseForm();
         }
     }
 }

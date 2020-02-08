@@ -86,6 +86,7 @@
             // 
             // cancelButton
             // 
+            this.cancelButton.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.cancelButton.Location = new System.Drawing.Point(151, 123);
             this.cancelButton.Name = "cancelButton";
             this.cancelButton.Size = new System.Drawing.Size(120, 23);
@@ -112,8 +113,10 @@
             // 
             // EditAccount
             // 
+            this.AcceptButton = this.editAccountButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.CancelButton = this.cancelButton;
             this.ClientSize = new System.Drawing.Size(279, 151);
             this.Controls.Add(this.displayNameLabel);
             this.Controls.Add(this.displayNameTextbox);
@@ -127,8 +130,9 @@
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "EditAccount";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Edit Account";
+            this.Load += new System.EventHandler(this.EditAccount_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
