@@ -125,23 +125,31 @@ namespace SteamAccountSwitcher
 
         private void LoadAccountsFromXML()
         {
-            string currAccount = GetCurrentAutoLoginUsername();
-            List<Account> accounts = _accountXML.LoadAllAccounts();
-            accounts.Sort((i1, i2) => i1.Position.CompareTo(i2.Position));
-
-            if (accounts != null)
+            try
             {
-                foreach (Account account in accounts)
+                string currAccount = GetCurrentAutoLoginUsername();
+                List<Account> accounts = _accountXML.LoadAllAccounts();
+
+                if (accounts != null && accounts.Count > 0)
                 {
-                    AddAccount(account.UniqueID, account.Username, account.Description, account.CustomDisplayName, -1, true);
+                    accounts.Sort((i1, i2) => i1.Position.CompareTo(i2.Position));
+
+                    if (accounts != null)
+                    {
+                        foreach (Account account in accounts)
+                        {
+                            AddAccount(account.UniqueID, account.Username, account.Description, account.CustomDisplayName, -1, true);
+                        }
+                    }
+
+                    if (!String.IsNullOrWhiteSpace(currAccount))
+                    {
+                        Account acc = accountsPanel.Controls.OfType<Account>().First(s => s.Username == currAccount);
+                        if (acc != null) SelectAccount(acc);
+                    }
                 }
             }
-
-            if (!String.IsNullOrWhiteSpace(currAccount))
-            {
-                Account acc = accountsPanel.Controls.OfType<Account>().First(s => s.Username == currAccount);
-                if (acc != null) SelectAccount(acc);
-            }
+            catch { }
         }
 
         private void Init()
