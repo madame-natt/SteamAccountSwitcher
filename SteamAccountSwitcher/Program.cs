@@ -7,14 +7,24 @@ namespace SteamAccountSwitcher
     static class Program
     {
         private const bool IsPreReleaseBuild = true;
-        private const string PreReleaseTag = "DEV_200208-1";
+        private const string PreReleaseTag = "DEV_210113-1";
 
-        [STAThread]
-        static void Main()
+        static void Main(string[] args)
         {
+            bool startMinimised = false;
+            foreach (string arg in args)
+            {
+                string param = arg.TrimStart('/', '-').Trim();
+
+                if (param == "minimised" || param == "minimized" || param == "mini")
+                {
+                    startMinimised = true;
+                }
+            }
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new AccountSwitcher());
+            Application.Run(new AccountSwitcher(startMinimised));
         }
 
         public static string GetVersion()

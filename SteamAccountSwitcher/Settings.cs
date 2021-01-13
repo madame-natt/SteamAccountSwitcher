@@ -10,7 +10,7 @@ namespace SteamAccountSwitcher
 
         private bool _hasCached = false;
 
-        private bool _developerMode, _verboseLogging, _logToFile, _useSteamPath, _closeToTray, _minToTray, _showTrayBalloon;
+        private bool _developerMode, _verboseLogging, _logToFile, _useSteamPath, _closeToTray, _minToTray, _showTrayBalloon, _startMinimised;
         private string _pathToSteam;
 
         public Settings()
@@ -31,6 +31,8 @@ namespace SteamAccountSwitcher
             Parent.ssm.AddBoolean("minimiseToTray", false, "Minimise SAS to system notification tray.", "user");
             Parent.ssm.AddBoolean("showTrayBalloon", true, "Show balloon when SAS is minimised to the tray.", "user");
 
+            Parent.ssm.AddBoolean("startMinimised", false, "Start the program in a minimised state.", "user");
+
             LoadSettings();
             CancelChange();
         }
@@ -48,6 +50,8 @@ namespace SteamAccountSwitcher
             _minToTray = Parent.ssm.GetBoolean("minimiseToTray");
             _showTrayBalloon = Parent.ssm.GetBoolean("showTrayBalloon");
 
+            _startMinimised = Parent.ssm.GetBoolean("startMinimised");
+
             _hasCached = true;
         }
 
@@ -61,6 +65,7 @@ namespace SteamAccountSwitcher
             CloseToTray = closeToTrayCheck.Checked;
             MinimiseToTray = minToTrayCheck.Checked;
             ShowTrayBalloon = showBalloonCheck.Checked;
+            StartMinimised = startMinimisedCheck.Checked;
 
             steamPathTextbox.Enabled = useSteamPathCheck.Checked;
             findSteamButton.Enabled = useSteamPathCheck.Checked;
@@ -79,6 +84,7 @@ namespace SteamAccountSwitcher
             closeToTrayCheck.Checked = _closeToTray;
             minToTrayCheck.Checked = _minToTray;
             showBalloonCheck.Checked = _showTrayBalloon;
+            startMinimisedCheck.Checked = _startMinimised;
 
             steamPathTextbox.Enabled = useSteamPathCheck.Checked;
             findSteamButton.Enabled = useSteamPathCheck.Checked;
@@ -148,14 +154,21 @@ namespace SteamAccountSwitcher
             findSteamButton.Enabled = useSteamPathCheck.Checked;
         }
 
+        private void startMinimisedCheck_CheckedChanged(object sender, System.EventArgs e)
+        {
+
+        }
+
         private void applySettings_Click(object sender, System.EventArgs e)
         {
             ApplySettings();
+            CloseForm();
         }
 
         private void cancelButton_Click(object sender, System.EventArgs e)
         {
             CancelChange();
+            CloseForm();
         }
 
         private void Settings_Load(object sender, System.EventArgs e)
@@ -216,6 +229,20 @@ namespace SteamAccountSwitcher
             {
                 Parent.ssm.SetBoolean("minimiseToTray", value);
                 _minToTray = value;
+            }
+        }
+
+        public bool StartMinimised
+        {
+            get
+            {
+                if (!_hasCached) LoadSettings();
+                return _startMinimised;
+            }
+            set
+            {
+                Parent.ssm.SetBoolean("startMinimised", value);
+                _startMinimised = value;
             }
         }
 

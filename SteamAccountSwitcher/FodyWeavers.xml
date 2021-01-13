@@ -3,6 +3,11 @@
   <Costura>
     <IncludeAssemblies>
       SimpleSettingsManager
+	  EntityFramework
+	  EntityFramework.SqlServer
+	  System.Data.SQLite
+	  System.Data.SQLite.EF6
+	  System.Data.SQLite.Linq
     </IncludeAssemblies>
   </Costura>
 </Weavers>

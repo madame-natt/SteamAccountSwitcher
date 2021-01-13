@@ -47,6 +47,7 @@
             this.verboseModeCheck = new System.Windows.Forms.CheckBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.startMinimisedCheck = new System.Windows.Forms.CheckBox();
             this.buttonPanel.SuspendLayout();
             this.settingsPanel.SuspendLayout();
             this.userPanel.SuspendLayout();
@@ -99,6 +100,7 @@
             // userPanel
             // 
             this.userPanel.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.userPanel.Controls.Add(this.startMinimisedCheck);
             this.userPanel.Controls.Add(this.showBalloonCheck);
             this.userPanel.Controls.Add(this.minToTrayCheck);
             this.userPanel.Controls.Add(this.closeToTrayCheck);
@@ -114,7 +116,7 @@
             // showBalloonCheck
             // 
             this.showBalloonCheck.AutoSize = true;
-            this.showBalloonCheck.Location = new System.Drawing.Point(10, 118);
+            this.showBalloonCheck.Location = new System.Drawing.Point(10, 104);
             this.showBalloonCheck.Name = "showBalloonCheck";
             this.showBalloonCheck.Size = new System.Drawing.Size(120, 17);
             this.showBalloonCheck.TabIndex = 5;
@@ -125,7 +127,7 @@
             // minToTrayCheck
             // 
             this.minToTrayCheck.AutoSize = true;
-            this.minToTrayCheck.Location = new System.Drawing.Point(10, 95);
+            this.minToTrayCheck.Location = new System.Drawing.Point(10, 81);
             this.minToTrayCheck.Name = "minToTrayCheck";
             this.minToTrayCheck.Size = new System.Drawing.Size(139, 17);
             this.minToTrayCheck.TabIndex = 4;
@@ -136,7 +138,7 @@
             // closeToTrayCheck
             // 
             this.closeToTrayCheck.AutoSize = true;
-            this.closeToTrayCheck.Location = new System.Drawing.Point(10, 72);
+            this.closeToTrayCheck.Location = new System.Drawing.Point(10, 58);
             this.closeToTrayCheck.Name = "closeToTrayCheck";
             this.closeToTrayCheck.Size = new System.Drawing.Size(125, 17);
             this.closeToTrayCheck.TabIndex = 3;
@@ -228,6 +230,18 @@
             this.openFileDialog.Filter = "Executable Files (*.exe)|*.exe";
             this.openFileDialog.InitialDirectory = "C:\\";
             // 
+            // startMinimisedCheck
+            // 
+            this.startMinimisedCheck.AutoSize = true;
+            this.startMinimisedCheck.Location = new System.Drawing.Point(10, 127);
+            this.startMinimisedCheck.Name = "startMinimisedCheck";
+            this.startMinimisedCheck.Size = new System.Drawing.Size(97, 17);
+            this.startMinimisedCheck.TabIndex = 6;
+            this.startMinimisedCheck.Text = "Start Minimised";
+            this.toolTip.SetToolTip(this.startMinimisedCheck, "Start the program in a minimised state.");
+            this.startMinimisedCheck.UseVisualStyleBackColor = true;
+            this.startMinimisedCheck.CheckedChanged += new System.EventHandler(this.startMinimisedCheck_CheckedChanged);
+            // 
             // Settings
             // 
             this.AcceptButton = this.applySettings;
@@ -273,5 +287,6 @@
         private System.Windows.Forms.CheckBox showBalloonCheck;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.OpenFileDialog openFileDialog;
+        private System.Windows.Forms.CheckBox startMinimisedCheck;
     }
 }

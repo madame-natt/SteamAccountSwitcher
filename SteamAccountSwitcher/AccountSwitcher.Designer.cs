@@ -142,7 +142,7 @@
             // aboutSASToolStripMenuItem
             // 
             this.aboutSASToolStripMenuItem.Name = "aboutSASToolStripMenuItem";
-            this.aboutSASToolStripMenuItem.Size = new System.Drawing.Size(130, 22);
+            this.aboutSASToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.aboutSASToolStripMenuItem.Text = "About SAS";
             this.aboutSASToolStripMenuItem.Click += new System.EventHandler(this.aboutSASToolStripMenuItem_Click);
             // 

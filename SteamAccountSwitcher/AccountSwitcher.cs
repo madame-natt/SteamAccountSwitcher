@@ -19,15 +19,30 @@ namespace SteamAccountSwitcher
 
         private Account _selectedAccount;
 
-        private AccountXML _accountXML = new AccountXML("accounts.xml");
-        public SSM ssm = new SSM(new SSM_File("settings.xml", SSM_File.Mode.XML));
+        private AccountXML _accountXML;
+        public SSM ssm;
+
+        private bool _argsStartMinimised = false;
 
         public AccountSwitcher()
         {
             InitializeComponent();
-
             Init();
         }
+
+        public AccountSwitcher(bool startMinimised)
+        {
+            _argsStartMinimised = startMinimised;
+            InitializeComponent();
+            Init();
+        }
+
+        public AccountSwitcher(string accountXML, string settingsXML) : this()
+        {
+            _accountXML = new AccountXML(accountXML);
+            ssm = new SSM(new SSM_File(settingsXML, SSM_File.Mode.XML));
+        }
+
         public void SelectAccount(Account account)
         {
             if (_selectedAccount != null) _selectedAccount.Selected = false;
@@ -58,8 +73,8 @@ namespace SteamAccountSwitcher
                 contextMenuStrip.Items.Add(acc.CustomDisplayName, null, delegate { SelectAccount(acc); Login(acc); }).ToolTipText = acc.Username;
             }
 
-            aboutSASToolStripMenuItem.Enabled = options.DeveloperMode;
-
+            contextMenuStrip.Items.Add("-");
+            contextMenuStrip.Items.Add("Options", null, delegate { OpenSettings(); }).ToolTipText = "Open the options";
             contextMenuStrip.Items.Add("-");
             contextMenuStrip.Items.Add("Exit", null, delegate { CloseForm(true); }).ToolTipText = "Close the program";
         }
@@ -131,6 +146,11 @@ namespace SteamAccountSwitcher
 
         private void Init()
         {
+            if (_accountXML == null)
+                _accountXML = new AccountXML("accounts.xml");
+            if (ssm == null)
+                ssm = new SSM(new SSM_File("settings.xml", SSM_File.Mode.XML));
+
             _addAccountForm.Parent = this;
             _addAccountForm.Owner = this;
             _editAccountForm.Parent = this;
@@ -146,6 +166,9 @@ namespace SteamAccountSwitcher
             accountsPanel.AutoScroll = false;
             accountsPanel.VerticalScroll.Visible = false;
             accountsPanel.AutoScroll = true;
+
+            if (_argsStartMinimised || options.StartMinimised)
+                MinimiseToTray(false);
         }
 
         public void OpenAccountEditor(Account account)
@@ -168,6 +191,9 @@ namespace SteamAccountSwitcher
 
         public void OpenSettings()
         {
+            if (!this.Visible)
+                MaxmiseFromTray();
+
             if (!options.Visible)
                 options.Show(this);
             else
@@ -207,7 +233,7 @@ namespace SteamAccountSwitcher
             if (options.UseSteamPath)
                 ExecuteCmdCommand(options.SteamPath);
             else
-                ExecuteCmdCommand("start steam://open/main"); // Add option to launch directly with EXE
+                ExecuteCmdCommand("start steam://open/main");
         }
 
         private string GetCurrentAutoLoginUsername()
@@ -306,10 +332,13 @@ namespace SteamAccountSwitcher
 
         private void AddAccountToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (!_editAccountForm.Visible)
-                _editAccountForm.Show(this);
+            if (!this.Visible)
+                MaxmiseFromTray();
+
+            if (!_addAccountForm.Visible)
+                _addAccountForm.Show(this);
             else
-                _editAccountForm.BringToFront();
+                _addAccountForm.BringToFront();
         }
 
         private void EditAccountToolStripMenuItem_Click(object sender, EventArgs e)
@@ -348,14 +377,17 @@ namespace SteamAccountSwitcher
                 notifyIcon.ShowBalloonTip(500);
             }
 
+            this.WindowState = FormWindowState.Minimized;
+            this.ShowInTaskbar = false;
             _editAccountForm.Hide();
             this.Hide();
         }
 
-        private void MaxmisedFromTray()
+        private void MaxmiseFromTray()
         {
             this.Show();
             this.BringToFront();
+            this.ShowInTaskbar = true;
             this.WindowState = FormWindowState.Normal;
         }
 
@@ -386,6 +418,7 @@ namespace SteamAccountSwitcher
         private void aboutSASToolStripMenuItem_Click(object sender, EventArgs e)
         {
             /* TODO: Make About Form */
+            MessageBox.Show(String.Format("Steam Account Switcher {0}", Program.GetVersion()), "About", MessageBoxButtons.OK);
         }
 
         private void notifyIcon_MouseClick(object sender, MouseEventArgs e)
@@ -395,7 +428,7 @@ namespace SteamAccountSwitcher
                 if (this.Visible)
                     MinimiseToTray(false);
                 else
-                    MaxmisedFromTray();
+                    MaxmiseFromTray();
             }
         }
 
@@ -410,7 +443,7 @@ namespace SteamAccountSwitcher
                 else
                 {
                     this.WindowState = FormWindowState.Normal;
-                    MaxmisedFromTray();
+                    MaxmiseFromTray();
                     this.BringToFront();
                 }
             }
