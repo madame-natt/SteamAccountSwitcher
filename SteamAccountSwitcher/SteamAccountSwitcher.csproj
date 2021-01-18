@@ -73,6 +73,7 @@
     <Compile Include="AddAccount.Designer.cs">
       <DependentUpon>AddAccount.cs</DependentUpon>
     </Compile>
+    <Compile Include="Logging.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings.cs">
@@ -87,11 +88,11 @@
     <EmbeddedResource Include="AccountSwitcher.resx">
       <DependentUpon>AccountSwitcher.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="EditAccount.resx">
-      <DependentUpon>EditAccount.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="AddAccount.resx">
       <DependentUpon>AddAccount.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EditAccount.resx">
+      <DependentUpon>EditAccount.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

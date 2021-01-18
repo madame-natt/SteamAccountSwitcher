@@ -21,6 +21,11 @@ namespace SteamAccountSwitcher
             this.UniqueID = uID;
         }
 
+        public override string ToString()
+        {
+            return String.Format("UID: {0}, Username: {1}, CustomDisplayName: {2}, Description: {3}", UniqueID, Username, CustomDisplayName, Description);
+        }
+
         public Account(Int64 uID, string userName, string description, int pos) : this(uID)
         {
             this.Username = userName;

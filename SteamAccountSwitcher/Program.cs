@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using System.Windows.Forms;
 
 namespace SteamAccountSwitcher
@@ -7,7 +6,7 @@ namespace SteamAccountSwitcher
     static class Program
     {
         private const bool IsPreReleaseBuild = true;
-        private const string PreReleaseTag = "DEV_210113-1";
+        private const string PreReleaseTag = "DEV_210118-1";
 
         static void Main(string[] args)
         {

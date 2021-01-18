@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
 
@@ -12,6 +14,7 @@ namespace SteamAccountSwitcher
 
         private bool _developerMode, _verboseLogging, _logToFile, _useSteamPath, _closeToTray, _minToTray, _showTrayBalloon, _startMinimised;
         private string _pathToSteam;
+        private ushort _maxCloseAttempts, _threadPausetimeMillis;
 
         public Settings()
         {
@@ -32,6 +35,8 @@ namespace SteamAccountSwitcher
             Parent.ssm.AddBoolean("showTrayBalloon", true, "Show balloon when SAS is minimised to the tray.", "user");
 
             Parent.ssm.AddBoolean("startMinimised", false, "Start the program in a minimised state.", "user");
+            Parent.ssm.AddUInt16("maxCloseAttempts", 3, "Number of close attempts SAS will perform.", "user");
+            Parent.ssm.AddUInt16("threadPausetimeMillis", 2000, "Number of milliseconds to wait before checking is Steam is still running.", "user");
 
             LoadSettings();
             CancelChange();
@@ -51,8 +56,32 @@ namespace SteamAccountSwitcher
             _showTrayBalloon = Parent.ssm.GetBoolean("showTrayBalloon");
 
             _startMinimised = Parent.ssm.GetBoolean("startMinimised");
+            _maxCloseAttempts = Parent.ssm.GetUInt16("maxCloseAttempts");
+            _threadPausetimeMillis = Parent.ssm.GetUInt16("threadPausetimeMillis");
 
             _hasCached = true;
+        }
+
+        public override string ToString()
+        {
+            List<string> allSettings = new List<string>();
+
+            allSettings.Add(String.Format("developerMode: {0}", _developerMode));
+            allSettings.Add(String.Format("verboseLogging: {0}", _verboseLogging));
+            allSettings.Add(String.Format("logToFile: {0}", _logToFile));
+
+            allSettings.Add(String.Format("useSteamPath: {0}", _useSteamPath));
+            allSettings.Add(String.Format("pathToSteam: {0}", _pathToSteam));
+
+            allSettings.Add(String.Format("closeToTray: {0}", _closeToTray));
+            allSettings.Add(String.Format("minimiseToTray: {0}", _minToTray));
+            allSettings.Add(String.Format("showTrayBalloon: {0}", _showTrayBalloon));
+
+            allSettings.Add(String.Format("startMinimised: {0}", _startMinimised));
+            allSettings.Add(String.Format("maxCloseAttempts: {0}", _maxCloseAttempts));
+            allSettings.Add(String.Format("threadPausetimeMillis: {0}", _threadPausetimeMillis));
+
+            return String.Join(", ", allSettings);
         }
 
         private void ApplySettings()
@@ -148,46 +177,32 @@ namespace SteamAccountSwitcher
             }
         }
 
-        private void useSteamPathCheck_CheckedChanged(object sender, System.EventArgs e)
+        public ushort MaxCloseAttempts
         {
-            steamPathTextbox.Enabled = useSteamPathCheck.Checked;
-            findSteamButton.Enabled = useSteamPathCheck.Checked;
+            get
+            {
+                if (!_hasCached) LoadSettings();
+                return _maxCloseAttempts;
+            }
+            set
+            {
+                Parent.ssm.SetUInt16("maxCloseAttempts", value);
+                _maxCloseAttempts = value;
+            }
         }
 
-        private void startMinimisedCheck_CheckedChanged(object sender, System.EventArgs e)
+        public ushort ThreadPauseTime
         {
-
-        }
-
-        private void applySettings_Click(object sender, System.EventArgs e)
-        {
-            ApplySettings();
-            CloseForm();
-        }
-
-        private void cancelButton_Click(object sender, System.EventArgs e)
-        {
-            CancelChange();
-            CloseForm();
-        }
-
-        private void Settings_Load(object sender, System.EventArgs e)
-        {
-            if (Owner != null)
-                Location = new Point(Owner.Location.X + Owner.Width / 2 - Width / 2, Owner.Location.Y + Owner.Height / 2 - Height / 2);
-
-            CancelChange();
-        }
-
-        private void findSteamButton_Click(object sender, System.EventArgs e)
-        {
-            if (openFileDialog.ShowDialog() == DialogResult.OK)
-                steamPathTextbox.Text = Path.GetFullPath(openFileDialog.FileName);
-        }
-
-        private void steamPathTextbox_TextChanged(object sender, System.EventArgs e)
-        {
-            toolTip.SetToolTip(steamPathTextbox, steamPathTextbox.Text);
+            get
+            {
+                if (!_hasCached) LoadSettings();
+                return _threadPausetimeMillis;
+            }
+            set
+            {
+                Parent.ssm.SetUInt16("threadPausetimeMillis", value);
+                _threadPausetimeMillis = value;
+            }
         }
 
         public string SteamPath
@@ -260,6 +275,42 @@ namespace SteamAccountSwitcher
             }
         }
 
+        private void useSteamPathCheck_CheckedChanged(object sender, System.EventArgs e)
+        {
+            steamPathTextbox.Enabled = useSteamPathCheck.Checked;
+            findSteamButton.Enabled = useSteamPathCheck.Checked;
+        }
+
+        private void applySettings_Click(object sender, System.EventArgs e)
+        {
+            ApplySettings();
+            CloseForm();
+        }
+
+        private void cancelButton_Click(object sender, System.EventArgs e)
+        {
+            CancelChange();
+            CloseForm();
+        }
+
+        private void Settings_Load(object sender, System.EventArgs e)
+        {
+            if (Owner != null)
+                Location = new Point(Owner.Location.X + Owner.Width / 2 - Width / 2, Owner.Location.Y + Owner.Height / 2 - Height / 2);
+
+            CancelChange();
+        }
+
+        private void findSteamButton_Click(object sender, System.EventArgs e)
+        {
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+                steamPathTextbox.Text = Path.GetFullPath(openFileDialog.FileName);
+        }
+
+        private void steamPathTextbox_TextChanged(object sender, System.EventArgs e)
+        {
+            toolTip.SetToolTip(steamPathTextbox, steamPathTextbox.Text);
+        }
 
         private void CloseForm()
         {

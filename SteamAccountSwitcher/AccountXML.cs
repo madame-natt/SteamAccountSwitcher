@@ -7,6 +7,8 @@ namespace SteamAccountSwitcher
 {
     class AccountXML
     {
+        public AccountSwitcher Parent { get; set; }
+
         private XmlDocument _xmlDoc = new XmlDocument();
         private XmlElement _xmlDocBody;
         private string _xmlDocContent;
@@ -16,8 +18,10 @@ namespace SteamAccountSwitcher
 
         private bool _xmlLock = false;
 
-        public AccountXML(string settingsPath, bool deleteFileIfRootMissing = true, bool performBackups = true)
+        public AccountXML(string settingsPath, AccountSwitcher accountSwitcher, bool deleteFileIfRootMissing = true, bool performBackups = true)
         {
+            Parent = accountSwitcher;
+
             _xmlPath = settingsPath;
             _purgeOnRootFailure = deleteFileIfRootMissing;
             _performBackups = performBackups;
@@ -62,6 +66,7 @@ namespace SteamAccountSwitcher
             }
             return false;
         }
+
         public bool EditAccount(Account account)
         {
             string nodeName = "uid_" + account.UniqueID.ToString();
@@ -93,25 +98,15 @@ namespace SteamAccountSwitcher
                 foreach (XmlNode node in elemList[0].ChildNodes)
                 {
                     if (node.Name == "uid")
-                    {
                         node.InnerText = account.UniqueID.ToString();
-                    }
                     else if (node.Name == "userName")
-                    {
                         node.InnerText = account.Username;
-                    }
                     else if (node.Name == "displayName")
-                    {
                         node.InnerText = account.CustomDisplayName;
-                    }
                     else if (node.Name == "description")
-                    {
                         node.InnerText = account.Description;
-                    }
                     else if (node.Name == "uiPos")
-                    {
                         node.InnerText = account.Position.ToString();
-                    }
                 }
 
                 SaveXML();
@@ -133,21 +128,13 @@ namespace SteamAccountSwitcher
                     foreach (XmlNode node in elemList[0].ChildNodes)
                     {
                         if (node.Name == "userName")
-                        {
                             account.Username = node.InnerText;
-                        }
                         else if (node.Name == "displayName")
-                        {
                             account.CustomDisplayName = node.InnerText;
-                        }
                         else if (node.Name == "description")
-                        {
                             account.Description = node.InnerText;
-                        }
                         else if (node.Name == "uiPos")
-                        {
                             account.Position = Convert.ToInt32(node.InnerText);
-                        }
                     }
                     return account;
                 }
@@ -167,9 +154,7 @@ namespace SteamAccountSwitcher
             {
                 List<Account> accounts = new List<Account>();
                 foreach (XmlNode node in elemList[0].ChildNodes)
-                {
                     accounts.Add(LoadAccount(Convert.ToInt64(node.SelectSingleNode("uid").InnerText)));
-                }
                 return accounts;
             }
             return null;
@@ -266,7 +251,7 @@ namespace SteamAccountSwitcher
             File.Delete(_xmlPath);
         }
 
-        private void LoadXML(bool skipRootCatch = false)
+        private void LoadXML()
         {
             try
             {
@@ -276,8 +261,12 @@ namespace SteamAccountSwitcher
             }
             catch (Exception)
             {
-                if (_purgeOnRootFailure && !skipRootCatch)
+                if (_purgeOnRootFailure)
+                {
+                    Parent.Log("AccountXML -> 'account.xml' file is corrupted! A backup is being created and the file is being recreated.", Logging.Severity.ERROR);
                     RecreateXMLFile(false);
+                }
+                else Parent.Log("AccountXML -> 'account.xml' file is corrupted! Either enable purgeOnRootFailure or delete the file manually!", Logging.Severity.ERROR);
             }
         }
 

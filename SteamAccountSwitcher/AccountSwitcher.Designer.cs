@@ -77,19 +77,19 @@
             // 
             this.exportAccountsToolStripMenuItem.Enabled = false;
             this.exportAccountsToolStripMenuItem.Name = "exportAccountsToolStripMenuItem";
-            this.exportAccountsToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
+            this.exportAccountsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exportAccountsToolStripMenuItem.Text = "Export Accounts";
             // 
             // toolStripSeparator2
             // 
             this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(158, 6);
+            this.toolStripSeparator2.Size = new System.Drawing.Size(177, 6);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
             this.exitToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.F4)));
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -107,7 +107,7 @@
             // addAccountToolStripMenuItem
             // 
             this.addAccountToolStripMenuItem.Name = "addAccountToolStripMenuItem";
-            this.addAccountToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.addAccountToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.addAccountToolStripMenuItem.Text = "Add Account";
             this.addAccountToolStripMenuItem.Click += new System.EventHandler(this.AddAccountToolStripMenuItem_Click);
             // 
@@ -115,19 +115,19 @@
             // 
             this.editAccountToolStripMenuItem.Enabled = false;
             this.editAccountToolStripMenuItem.Name = "editAccountToolStripMenuItem";
-            this.editAccountToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.editAccountToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.editAccountToolStripMenuItem.Text = "Edit Account";
             this.editAccountToolStripMenuItem.Click += new System.EventHandler(this.EditAccountToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(141, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(177, 6);
             // 
             // optionsToolStripMenuItem
             // 
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.optionsToolStripMenuItem.Text = "Options";
             this.optionsToolStripMenuItem.Click += new System.EventHandler(this.optionsToolStripMenuItem_Click);
             // 
@@ -193,7 +193,8 @@
             // contextMenuStrip
             // 
             this.contextMenuStrip.Name = "contextMenuStrip";
-            this.contextMenuStrip.Size = new System.Drawing.Size(61, 4);
+            this.contextMenuStrip.ShowImageMargin = false;
+            this.contextMenuStrip.Size = new System.Drawing.Size(156, 26);
             // 
             // AccountSwitcher
             // 

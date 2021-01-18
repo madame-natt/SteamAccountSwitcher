@@ -35,6 +35,7 @@
             this.applySettings = new System.Windows.Forms.Button();
             this.settingsPanel = new System.Windows.Forms.Panel();
             this.userPanel = new System.Windows.Forms.Panel();
+            this.startMinimisedCheck = new System.Windows.Forms.CheckBox();
             this.showBalloonCheck = new System.Windows.Forms.CheckBox();
             this.minToTrayCheck = new System.Windows.Forms.CheckBox();
             this.closeToTrayCheck = new System.Windows.Forms.CheckBox();
@@ -47,7 +48,6 @@
             this.verboseModeCheck = new System.Windows.Forms.CheckBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.startMinimisedCheck = new System.Windows.Forms.CheckBox();
             this.buttonPanel.SuspendLayout();
             this.settingsPanel.SuspendLayout();
             this.userPanel.SuspendLayout();
@@ -113,10 +113,21 @@
             this.userPanel.Size = new System.Drawing.Size(205, 154);
             this.userPanel.TabIndex = 4;
             // 
+            // startMinimisedCheck
+            // 
+            this.startMinimisedCheck.AutoSize = true;
+            this.startMinimisedCheck.Location = new System.Drawing.Point(10, 104);
+            this.startMinimisedCheck.Name = "startMinimisedCheck";
+            this.startMinimisedCheck.Size = new System.Drawing.Size(97, 17);
+            this.startMinimisedCheck.TabIndex = 6;
+            this.startMinimisedCheck.Text = "Start Minimised";
+            this.toolTip.SetToolTip(this.startMinimisedCheck, "Start the program in a minimised state.");
+            this.startMinimisedCheck.UseVisualStyleBackColor = true;
+            // 
             // showBalloonCheck
             // 
             this.showBalloonCheck.AutoSize = true;
-            this.showBalloonCheck.Location = new System.Drawing.Point(10, 104);
+            this.showBalloonCheck.Location = new System.Drawing.Point(10, 127);
             this.showBalloonCheck.Name = "showBalloonCheck";
             this.showBalloonCheck.Size = new System.Drawing.Size(120, 17);
             this.showBalloonCheck.TabIndex = 5;
@@ -229,18 +240,6 @@
             this.openFileDialog.FileName = "Steam.exe";
             this.openFileDialog.Filter = "Executable Files (*.exe)|*.exe";
             this.openFileDialog.InitialDirectory = "C:\\";
-            // 
-            // startMinimisedCheck
-            // 
-            this.startMinimisedCheck.AutoSize = true;
-            this.startMinimisedCheck.Location = new System.Drawing.Point(10, 127);
-            this.startMinimisedCheck.Name = "startMinimisedCheck";
-            this.startMinimisedCheck.Size = new System.Drawing.Size(97, 17);
-            this.startMinimisedCheck.TabIndex = 6;
-            this.startMinimisedCheck.Text = "Start Minimised";
-            this.toolTip.SetToolTip(this.startMinimisedCheck, "Start the program in a minimised state.");
-            this.startMinimisedCheck.UseVisualStyleBackColor = true;
-            this.startMinimisedCheck.CheckedChanged += new System.EventHandler(this.startMinimisedCheck_CheckedChanged);
             // 
             // Settings
             // 

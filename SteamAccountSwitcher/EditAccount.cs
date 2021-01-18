@@ -15,18 +15,20 @@ namespace SteamAccountSwitcher
             InitializeComponent();
         }
 
-        public void SetAccount(Account account)
+        public Account Account
         {
-            _account = account;
+            get
+            {
+                return _account;
+            }
+            set
+            {
+                _account = value;
 
-            displayNameTextbox.Text = _account.CustomDisplayName;
-            usernameTextbox.Text = _account.Username;
-            descTextbox.Text = _account.Description;
-        }
-
-        public Account GetAccount()
-        {
-            return _account;
+                displayNameTextbox.Text = _account.CustomDisplayName;
+                usernameTextbox.Text = _account.Username;
+                descTextbox.Text = _account.Description;
+            }
         }
 
         private void ResetInput()
