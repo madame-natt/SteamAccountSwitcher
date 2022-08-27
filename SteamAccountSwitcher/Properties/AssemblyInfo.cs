@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("mullak99")]
 [assembly: AssemblyProduct("SteamAccountSwitcher")]
-[assembly: AssemblyCopyright("Copyright © 2020 | mullak99")]
+[assembly: AssemblyCopyright("Copyright © 2022 | mullak99")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
