@@ -374,8 +374,9 @@ namespace SteamAccountSwitcher
 		{
 			Log($"CloseForm (forceClose: {forceClose}) -> Closing SAS");
 
-			if (forceClose) OnFormClosing(new FormClosingEventArgs(CloseReason.ApplicationExitCall, false));
-			else OnFormClosing(new FormClosingEventArgs(CloseReason.UserClosing, false));
+			OnFormClosing(forceClose
+				? new FormClosingEventArgs(CloseReason.ApplicationExitCall, false)
+				: new FormClosingEventArgs(CloseReason.UserClosing, false));
 		}
 
 		private void MinimiseToTray(bool showBalloon = true)
